@@ -4904,7 +4904,7 @@ const THEMES = [
     const AdManager = {
         pendingCallback: null,
 
-        // AdMob Configuration (Primary)
+        // AdMob Configuration (Secondary)
         appId: "ca-app-pub-5879474591831999~1348513678",
 
         // AdMob Units
@@ -4914,7 +4914,7 @@ const THEMES = [
         admobRewardedId: "ca-app-pub-5879474591831999/6350366758",
         admobRewardedIntId: "ca-app-pub-5879474591831999/6350366758",
 
-        // Yandex Units (Secondary / Backup)
+        // Yandex Units (Primary)
         yandexAppId: "18543851",
         yandexBannerId: "R-M-18543851-9",
         yandexInterstitialId: "R-M-18543851-10",
@@ -4926,8 +4926,8 @@ const THEMES = [
             this.pendingCallback = onSuccess;
             if (this.isAndroid()) {
                 if (typeof window.Android.showRewardedAd === 'function') {
-                    // Priority: AdMob -> Yandex (Handled by Native if supported, otherwise AdMob)
-                    window.Android.showRewardedAd(this.admobRewardedId);
+                    // Priority: Yandex -> AdMob (Handled by Native if supported, otherwise Yandex)
+                    window.Android.showRewardedAd(this.yandexRewardedId);
                 }
             } else {
                 console.warn("AdManager: Not Android, cannot show rewarded ad.");
@@ -4945,7 +4945,7 @@ const THEMES = [
         showInterstitialAd: function () {
             if (this.isAndroid()) {
                 if (typeof window.Android.showInterstitial === 'function') {
-                     window.Android.showInterstitial(this.admobInterstitialId);
+                     window.Android.showInterstitial(this.yandexInterstitialId);
                 }
             }
         },
@@ -4953,6 +4953,7 @@ const THEMES = [
         showNativeAd: function () {
             if (this.isAndroid()) {
                 if (typeof window.Android.showNativeAd === 'function') {
+                    // Yandex Native ID was not provided, using AdMob as fallback/primary for Native
                     window.Android.showNativeAd(this.admobNativeId);
                 }
             }
@@ -4961,7 +4962,7 @@ const THEMES = [
         showBannerAd: function () {
             if (this.isAndroid()) {
                 if (typeof window.Android.showBannerAd === 'function') {
-                    window.Android.showBannerAd(this.admobBannerId);
+                    window.Android.showBannerAd(this.yandexBannerId);
                 }
             }
         }
