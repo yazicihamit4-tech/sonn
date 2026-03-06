@@ -4904,13 +4904,21 @@ const THEMES = [
     const AdManager = {
         pendingCallback: null,
 
-        // Ad Configuration
-        appId: "18543851",
+        // AdMob Configuration (Secondary)
+        appId: "ca-app-pub-5879474591831999~1348513678",
 
-        // Yandex Units
-        yandexRewardedId: "R-M-18543851-1",
-        yandexInterstitialId: "R-M-18543851-2",
-        yandexNativeId: "R-M-18543851-3",
+        // AdMob Units
+        admobBannerId: "ca-app-pub-5879474591831999/2171448597",
+        admobInterstitialId: "ca-app-pub-5879474591831999/8282395523",
+        admobNativeId: "ca-app-pub-5879474591831999/2306675386",
+        admobRewardedId: "ca-app-pub-5879474591831999/6350366758",
+        admobRewardedIntId: "ca-app-pub-5879474591831999/6350366758",
+
+        // Yandex Units (Primary)
+        yandexAppId: "18543851",
+        yandexBannerId: "R-M-18543851-9",
+        yandexInterstitialId: "R-M-18543851-10",
+        yandexRewardedId: "R-M-18543851-8",
 
         isAndroid: function () { return (typeof window.Android !== "undefined" && window.Android !== null); },
 
@@ -4918,6 +4926,7 @@ const THEMES = [
             this.pendingCallback = onSuccess;
             if (this.isAndroid()) {
                 if (typeof window.Android.showRewardedAd === 'function') {
+                    // Priority: Yandex -> AdMob (Handled by Native if supported, otherwise Yandex)
                     window.Android.showRewardedAd(this.yandexRewardedId);
                 }
             } else {
@@ -4934,14 +4943,27 @@ const THEMES = [
         },
 
         showInterstitialAd: function () {
-            if (this.isAndroid() && typeof window.Android.showInterstitial === 'function') {
-                window.Android.showInterstitial(this.yandexInterstitialId);
+            if (this.isAndroid()) {
+                if (typeof window.Android.showInterstitial === 'function') {
+                     window.Android.showInterstitial(this.yandexInterstitialId);
+                }
             }
         },
 
         showNativeAd: function () {
-            if (this.isAndroid() && typeof window.Android.showNativeAd === 'function') {
-                window.Android.showNativeAd(this.yandexNativeId);
+            if (this.isAndroid()) {
+                if (typeof window.Android.showNativeAd === 'function') {
+                    // Yandex Native ID was not provided, using AdMob as fallback/primary for Native
+                    window.Android.showNativeAd(this.admobNativeId);
+                }
+            }
+        },
+
+        showBannerAd: function () {
+            if (this.isAndroid()) {
+                if (typeof window.Android.showBannerAd === 'function') {
+                    window.Android.showBannerAd(this.yandexBannerId);
+                }
             }
         }
     };
@@ -5259,7 +5281,10 @@ const THEMES = [
         document.getElementById(id).classList.add('active');
         currentScreen = id;
         if (id === 'screen-admin') loadAdminDashboard();
-        if (id === 'screen-lobby' && typeof AdManager !== 'undefined') AdManager.showNativeAd();
+        if (id === 'screen-lobby' && typeof AdManager !== 'undefined') {
+            AdManager.showNativeAd();
+            AdManager.showBannerAd();
+        }
     }
     function attemptExit() { 
         // Oyun aktifse veya oyun ekranlarındaysa uyarı göster
